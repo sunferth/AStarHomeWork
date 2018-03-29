@@ -13,13 +13,19 @@ namespace Game1
         String type;
         Texture2D tileText;
         Rectangle location;
-        int distanceFromStart;
-        double Heuristic;
+        int x;
+        int y;
+        double distanceFromStart;
+        double HeuristicCost;
+        Node path;
 
 
         public Node(int x, int y, Texture2D text, String type = "Normal")
         {
+            
             location = new Rectangle(x, y, 24, 24);
+            x = (int)Math.Floor((double)x / 24);
+            y = (int)Math.Floor((double)y / 24);
             tileText = text;
             this.type = type;
         }
@@ -74,6 +80,64 @@ namespace Game1
             }
         }
 
-        
+        public Rectangle rect
+        {
+            get
+            {
+                return location;
+            }
+        }
+
+        public double TotalCost
+        {
+            get
+            {
+                return HeuristicCost + distanceFromStart;
+            }
+        }
+        public double StartCost
+        {
+            get
+            {
+                return distanceFromStart;
+            }
+            set
+            {
+                distanceFromStart = value;
+            }
+        }
+        public double HCost
+        {
+            get
+            {
+                return HeuristicCost;
+            }
+            set
+            {
+                HeuristicCost = value;
+            }
+        }
+        public Node Path
+        {
+            get
+            {
+                return path;
+            }
+            set
+            {
+                path = value;
+            }
+        }
+
+        public int X
+        {
+            get { return x; }
+        }
+        public int Y
+        {
+            get { return y; }
+        }
+
+
     }
 }
