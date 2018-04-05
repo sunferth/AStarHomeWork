@@ -13,19 +13,20 @@ namespace Game1
         String type;
         Texture2D tileText;
         Rectangle location;
+        double distanceFromStart = 626;
+        double HeuristicCost = 626;
+        Node path;
+        SpriteFont font;
         int x;
         int y;
-        double distanceFromStart;
-        double HeuristicCost;
-        Node path;
 
 
-        public Node(int x, int y, Texture2D text, String type = "Normal")
+        public Node(SpriteFont font, int x, int y, Texture2D text, String type = "Normal")
         {
-            
-            location = new Rectangle(x, y, 24, 24);
-            x = (int)Math.Floor((double)x / 24);
-            y = (int)Math.Floor((double)y / 24);
+            this.font = font;
+            location = new Rectangle(x, y, 64, 64);
+            this.x = (int)Math.Floor((double)x / 64);
+            this.y = (int)Math.Floor((double)y / 64);
             tileText = text;
             this.type = type;
         }
@@ -33,8 +34,10 @@ namespace Game1
 
         public void Draw(SpriteBatch sb)
         {
-            switch(type)
+            
+            switch (type)
             {
+
                 case "Start":
                     {
                         sb.Draw(tileText, location, Color.Green);
@@ -60,12 +63,42 @@ namespace Game1
                         sb.Draw(tileText, location, Color.Gray);
                         break;
                     }
+                case "Closed":
+                    {
+                        sb.Draw(tileText, location, Color.Brown);
+                        break;
+                    }
                 default:
                     {
                         sb.Draw(tileText, location, Color.White);
                         break;
                     }
             }
+            if(distanceFromStart != 626)
+                sb.DrawString(font, distanceFromStart.ToString(), new Vector2(x * 64 + 5, y * 64 + 5), Color.Blue);
+            if (HeuristicCost != 626)
+                sb.DrawString(font, HeuristicCost.ToString(), new Vector2(x * 64 + 64 - 32, y * 64 + 5), Color.Purple);
+            if (TotalCost != 1252 && TotalCost != 626)
+                sb.DrawString(font, TotalCost.ToString(), new Vector2(x * 64 + 5, y * 64 + 64 - 24), Color.Brown);
+        }
+        public float CalcG(String Heuristic, Node prev, bool DiagonalsCostMore)
+         {
+            if (Heuristic == "Manhattan")
+            {
+                if(DiagonalsCostMore)
+                    return (float)Math.Sqrt(((prev.X - x + prev.Y - y)^2) + prev.StartCost);
+                else
+                    return (float)(prev.StartCost)+1;
+            }
+            return 1000;
+        }
+        public float CalcH(String Heuristic, Node goal)
+        {
+            if (Heuristic == "Manhattan")
+            {
+                return Math.Abs(goal.X - x) + Math.Abs(goal.Y - y);
+            }
+            return 1000;
         }
 
         public String Type
@@ -80,7 +113,7 @@ namespace Game1
             }
         }
 
-        public Rectangle rect
+        public Rectangle Rect
         {
             get
             {

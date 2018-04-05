@@ -14,15 +14,13 @@ namespace Game1
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         Graph mainGraph;
-        Texture2D tile;
-        SpriteFont Arial12;
+        SpriteFont tileFont;
+        Texture2D tileText;
         int width;
         int height;
-        bool canPress;
-        List<Node> menu;
-        Node[,] mainMap;
-        String typeSetting;
-        AStar temp;
+        bool keyPressable;
+        AStar pathFinding;
+        
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -39,16 +37,13 @@ namespace Game1
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-            width = 28;
-            height = 20;
-            mainGraph = new Graph(width, height, Content.Load<Texture2D>("tile"));
-            canPress = true;
+
+            width = 20;
+            height = 17;
             graphics.PreferredBackBufferWidth = GraphicsDevice.DisplayMode.Width;
             graphics.PreferredBackBufferHeight = GraphicsDevice.DisplayMode.Height;
             graphics.IsFullScreen = true;
             graphics.ApplyChanges();
-            mainMap = mainGraph.allTiles;
-            menu = new List<Node>();
             base.Initialize();
         }
 
@@ -60,12 +55,16 @@ namespace Game1
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            tile = Content.Load<Texture2D>("tile");
-            Arial12 = Content.Load<SpriteFont>("Arial12");
-            menu.Add(new Node(750, 45, tile, "Start"));
-            menu.Add(new Node(750, 145, tile, "Goal"));
-            menu.Add(new Node(770, 245, tile, "Obstacle"));
-            
+            tileText = Content.Load<Texture2D>("tile");
+            tileFont = Content.Load<SpriteFont>("Arial3");
+            mainGraph = new Graph(tileFont, width, height, tileText);
+            mainGraph.Start = mainGraph.AllTiles[0, 0];
+            mainGraph.Start.Type = "Start";
+            mainGraph.Goal = mainGraph.AllTiles[15, 10];
+            mainGraph.Goal.Type = "Goal";
+            keyPressable = false;
+            pathFinding = new AStar(mainGraph, "Manhattan");
+
             // TODO: use this.Content to load your game content here
         }
 
@@ -87,59 +86,44 @@ namespace Game1
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-            MouseState currentMouse = Mouse.GetState();
-            if(canPress && currentMouse.LeftButton == ButtonState.Pressed)
-            {
-               for(int x = 0; x<width; x++)
-                {
-                    for (int y = 0; y < height; y++)
-                    {
-                        if(mainMap[x, y].rect.Contains(currentMouse.Position))
-                        {
-                            if(typeSetting != "Obstacle")
-                            {
-                                canPress = false;
-                            }
-                            if (typeSetting == "Start" && mainGraph.Start != mainMap[x, y])
-                            {
-                                if (mainGraph.Start != null)
-                                    mainGraph.Start.Type = "Normal";
-                                mainGraph.Start = mainMap[x, y];
-                            }
-                            else if (typeSetting == "Goal" && mainGraph.Goal != mainMap[x, y])
-                            {
-                                if (mainGraph.Goal != null)
-                                    mainGraph.Goal.Type = "Normal";
 
-                                mainGraph.Goal = mainMap[x, y];
-                                temp = new AStar(mainGraph, "Manhattan");
-                                temp.Run();
-                                for(int f = 0; f< temp.GetPath().Count; f++)
-                                {
-                                    temp.GetPath()[f].Type = "Path";
-                                }
-                            }
-                            else
-                            {
-                                mainMap[x, y].Type = typeSetting;
-                            }
-                        }
-                    }
-                }
-               foreach(Node n in menu)
-                {
-                    if(n.rect.Contains(currentMouse.Position))
-                    {
-                        canPress = false;
-                        typeSetting = n.Type;
-                    }
-                }
-            }
-            if(currentMouse.LeftButton != ButtonState.Pressed)
+            if(keyPressable && Keyboard.GetState().IsKeyDown(Keys.Up))
             {
-                canPress = true;
+                keyPressable = false;
+                if (pathFinding.OneIteration())
+                {
+                    Node current = mainGraph.Goal;
+                    mainGraph.Goal.Type = "Goal";
+                    while(current.Path != null)
+                    {
+                        current.Path.Type = "Path";
+                        current = current.Path;
+                    }
+                    mainGraph.Start.Type = "Start";
+                }
+                
             }
-            // TODO: Add your update logic here
+            else if (keyPressable && Keyboard.GetState().IsKeyDown(Keys.Space))
+            {
+                keyPressable = false;
+                pathFinding.Run();
+                Node current = mainGraph.Goal;
+                while (current.Path != null)
+                {
+                    current.Path.Type = "Path";
+                    current = current.Path;
+                }
+                mainGraph.Goal.Type = "Goal";
+                mainGraph.Start.Type = "Start";
+
+            }
+            else if(Keyboard.GetState().GetPressedKeys().Length == 0)
+            {
+                 keyPressable = true;
+            }
+            
+
+
 
             base.Update(gameTime);
         }
@@ -150,27 +134,11 @@ namespace Game1
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
-            MouseState currentMouse = Mouse.GetState();
-
-            // TODO: Add your drawing code here
+            GraphicsDevice.Clear(Color.Black);
             spriteBatch.Begin();
             mainGraph.Draw(spriteBatch);
-            spriteBatch.Draw(tile, new Rectangle(672, 0, 200, 600), Color.Black);
-            spriteBatch.DrawString(Arial12, "Start", new Vector2(690, 50), Color.White);
-            //Node temp = new Node(750, 45, tile, "Start");
-            spriteBatch.DrawString(Arial12, "Goal", new Vector2(690, 150), Color.White);
-           // Node Goal = new Node(750, 145, tile, "Goal");
-            spriteBatch.DrawString(Arial12, "Obstacle", new Vector2(690, 250), Color.White);
-            //Node ObstacleMenu = new Node(770, 245, tile, "Obstacle");
-            
-            spriteBatch.Draw(tile, new Rectangle(685, 290, 100, 50), Color.Blue);
-            spriteBatch.DrawString(Arial12, "Run", new Vector2(720, 308), Color.Black);
-            foreach(Node n in menu)
-            {
-                n.Draw(spriteBatch);
-            }
             spriteBatch.End();
+          
             base.Draw(gameTime);
         }
     }

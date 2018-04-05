@@ -18,9 +18,14 @@ namespace Game1
         public void Enqueue(Node data)
         {
             int i = 0;
-            while(true)
+            while (true)
             {
-                if(mainList[i] != null && mainList[i].TotalCost <= data.TotalCost)
+                if (mainList.Count <= i)
+                {
+                    mainList.Add(data);
+                    return;
+                }
+                if (mainList[i].TotalCost <= data.TotalCost)
                 {
                     i++;
                 }
@@ -30,10 +35,15 @@ namespace Game1
                     return;
                 }
             }
+            
         }
         //remove the first element and resort
         public Node Dequeue()
         {
+           if(mainList.Count == 0)
+            {
+                return null;
+            }
             Node temp = mainList[0];
             mainList = mainList.GetRange(1, mainList.Count - 1);
             return temp;
@@ -41,13 +51,15 @@ namespace Game1
         //return the first piece
         public Node Peek()
         {
-            return mainList[0];
+            if(mainList.Count >= 1)
+                return mainList[0];
+            return null;
         }
         public bool InList(Node node)
         {
-            foreach(Node n in mainList)
+            for(int i  = 0; i<mainList.Count; i++)
             {
-                if(n == node)
+                if(mainList[i] == node)
                 {
                     return true;
                 }
@@ -56,22 +68,12 @@ namespace Game1
         }
         public void Remove(Node node)
         {
-            if(InList(node))
-            {
-                List<Node> tempList = new List<Node>();
-                foreach (Node n in mainList)
-                {
-                    if (n != node)
-                    {
-                        tempList.Add(n);
-                    }
-                }
-            }
+            
         }
         //return if there is data in the list
         public bool IsEmpty()
         {
-            return (mainList.Count <= 0);
+            return !(mainList.Count > 0);
         }
     }
 }

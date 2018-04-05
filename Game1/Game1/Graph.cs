@@ -14,7 +14,7 @@ namespace Game1
         Node goal;
         int width;
         int height;
-        public Graph(int width, int height, Texture2D text)
+        public Graph(SpriteFont font,int width, int height, Texture2D text)
         {
             this.width = width;
             this.height = height;
@@ -23,7 +23,7 @@ namespace Game1
             {
                 for(int j = 0; j<height; j++)
                 {
-                    mainGraph[i, j] = new Node(i * 24, j * 24, text);
+                    mainGraph[i, j] = new Node(font,i * 64, j * 64, text);
                 }
             }
         }
@@ -53,7 +53,7 @@ namespace Game1
             }
         }
 
-        public Node[,] allTiles
+        public Node[,] AllTiles
         {
             get
             {
@@ -64,36 +64,25 @@ namespace Game1
         public List<Node> GetNeighbors(Node current, bool diagonalsAllowed)
         {
             List<Node> allNeighbors = new List<Node>();
-            if(diagonalsAllowed)
+            for(int i = current.X-1; i<=current.X+1; i++)
             {
-                if(0<= current.X-1 && current.X-1 <= width && 0<= current.Y && current.Y <= height)
-                    allNeighbors.Add(mainGraph[current.X - 1, current.Y]);
-                if (0 <= current.X+1 && current.X+1 <= width && 0 <= current.Y && current.Y <= height)
-                    allNeighbors.Add(mainGraph[current.X + 1, current.Y]);
-                if (0 <= current.X && current.X <= width && 0 <= current.Y+1 && current.Y+1 <= height)
-                    allNeighbors.Add(mainGraph[current.X, current.Y + 1]);
-                if (0 <= current.X && current.X <= width && 0 <= current.Y-1 && current.Y-1 <= height)
-                    allNeighbors.Add(mainGraph[current.X, current.Y - 1]);
-                if (0 <= current.X-1 && current.X-1 <= width && 0 <= current.Y-1 && current.Y-1 <= height)
-                    allNeighbors.Add(mainGraph[current.X - 1, current.Y -1]);
-                if (0 <= current.X+1 && current.X+1 <= width && 0 <= current.Y+1 && current.Y+1 <= height)
-                    allNeighbors.Add(mainGraph[current.X + 1, current.Y + 1]);
-                if (0 <= current.X-1 && current.X-1 <= width && 0 <= current.Y+1 && current.Y+1 <= height)
-                    allNeighbors.Add(mainGraph[current.X - 1, current.Y + 1]);
-                if (0 <= current.X+1 && current.X+1 <= width && 0 <= current.Y-1 && current.Y-1 <= height)
-                    allNeighbors.Add(mainGraph[current.X + 1, current.Y - 1]);
+                for(int j = current.Y-1; j<=current.Y+1; j++)
+                {
+                    if(i>= 0 && i<mainGraph.GetLength(0) && j>= 0 && j<mainGraph.GetLength(1) && (mainGraph[i,j] != current))
+                    {
+                        if(diagonalsAllowed)
+                        {
+                            allNeighbors.Add(mainGraph[i, j]);
+                        }
+                        else if(i==current.X || j == current.Y)
+                        {
+                            allNeighbors.Add(mainGraph[i, j]);
+                        }
+                    }
+                }
             }
-            else
-            {
-                if (0 <= current.X - 1 && current.X - 1 <= width && 0 <= current.Y && current.Y <= height)
-                    allNeighbors.Add(mainGraph[current.X - 1, current.Y]);
-                if (0 <= current.X + 1 && current.X + 1 <= width && 0 <= current.Y && current.Y <= height)
-                    allNeighbors.Add(mainGraph[current.X + 1, current.Y]);
-                if (0 <= current.X && current.X <= width && 0 <= current.Y + 1 && current.Y + 1 <= height)
-                    allNeighbors.Add(mainGraph[current.X, current.Y + 1]);
-                if (0 <= current.X && current.X <= width && 0 <= current.Y - 1 && current.Y - 1 <= height)
-                    allNeighbors.Add(mainGraph[current.X, current.Y - 1]);
-            }
+            
+            
             
             return allNeighbors;
         }

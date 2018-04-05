@@ -23,61 +23,61 @@ namespace Game1
             diagonalsCostMore = false;
             current = graph.Start;
             current.StartCost = 0;
+            current.CalcH(Heuristic,graph.Goal);
             OpenQueue = new PriorityQueue();
             OpenQueue.Enqueue(current);
+            ClosedList = new List<Node>();
+            heuristic = Heuristic;
 
         }
 
         public bool OneIteration()
         {
-            if(OpenQueue.Peek() != graph.Goal)
-            {
-                current = OpenQueue.Dequeue();
-                ClosedList.Add(current);
-                List<Node> temp = graph.GetNeighbors(current, diagonalsAllowed);
-                foreach(Node n in temp)
-                {
-                    double cost;
-                    if (diagonalsAllowed && diagonalsCostMore)
-                    {
-                        if (n.X == current.X || n.Y == current.Y)
-                        {
-                            cost = current.StartCost + 1;
-                        }
-                        else
-                        {
-                            cost = current.StartCost + Math.Sqrt(2);
-                        }
-                    }
-                    else
-                    {
-                        cost = current.StartCost + 1;
-                    }
-
-                    if(OpenQueue.InList(n) && cost<n.StartCost)
-                    {
-                        OpenQueue.Remove(n);
-                    }
-                    if(ClosedList.Contains(n) && cost < n.StartCost)
-                    {
-                        ClosedList.Remove(n);
-                    }
-                    if (!OpenQueue.InList(n) && !ClosedList.Contains(n))
-                    {
-                        n.StartCost = cost;
-                        OpenQueue.Enqueue(n);
-                        n.Path = current;
-                    }
-                }
-
-                return false;
-            }
-            else
+            if(OpenQueue.InList(graph.Goal))
             {
                 return true;
             }
+            current = OpenQueue.Peek();
+            ClosedList.Add(OpenQueue.Dequeue());
+            current.Type = "Closed";
+            List<Node> temp = graph.GetNeighbors(current, diagonalsAllowed);
+            foreach(Node n in temp)
+            {
+                if(n.Type == "Obstacle")
+                {
+
+                }
+                else if(OpenQueue.InList(n))
+                {
+                    if (n.StartCost > n.CalcG(heuristic, current, diagonalsCostMore))
+                    {
+                        n.CalcG(heuristic, current, diagonalsAllowed);
+                        n.Path = current;
+                        
+                    }
+                }
+                else if (ClosedList.Contains(n) && n.CalcG("Manhattan",current,diagonalsCostMore)<n.StartCost)
+                {
+                    ClosedList.Remove(n);
+                }
+                else if(!ClosedList.Contains(n) && !OpenQueue.InList(n))
+                {
+                    n.StartCost = n.CalcG(heuristic, current, diagonalsCostMore);
+                    n.HCost = n.CalcH(heuristic, graph.Goal);
+                    n.Type = "Checked";
+                    n.Path = current;
+                    OpenQueue.Enqueue(n);
+                }
+                
+            }
+            if(OpenQueue.IsEmpty())
+            {
+                return true;
+            }
+            return false;
 
         }
+       
         public List<Node> GetPath()
         {
             List<Node> thePath = new List<Node>();
@@ -96,9 +96,9 @@ namespace Game1
 
         public void Run()
         {
-            while(graph.Goal.Path == null)
+            while(!OneIteration())
             {
-                OneIteration();
+                
             }
         }
     }
