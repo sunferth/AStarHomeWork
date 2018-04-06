@@ -39,8 +39,14 @@ namespace Game1
             get { return start; }
             set
             {
+                if (start != null)
+                {
+                    start.Type = "Normal";
+                    start.StartCost = 626;
+                }
                 start = value;
                 start.Type = "Start";
+                start.StartCost = 0;
             }
         }
         public Node Goal
@@ -48,6 +54,8 @@ namespace Game1
             get { return goal; }
             set
             {
+                if(goal != null)
+                    goal.Type = "Normal";
                 goal = value;
                 goal.Type = "Goal";
             }

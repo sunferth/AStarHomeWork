@@ -39,3 +39,10 @@
 /processorParam:TextureFormat=Compressed
 /build:Arial3.spritefont
 
+#begin errorFont.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:errorFont.spritefont
+

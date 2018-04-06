@@ -10,6 +10,7 @@ namespace Game1
 {
     class Node
     {
+        //fields
         String type;
         Texture2D tileText;
         Rectangle location;
@@ -20,7 +21,7 @@ namespace Game1
         int x;
         int y;
 
-
+        //Creates a new node, with font, x and y location on screen, texture, and type normal
         public Node(SpriteFont font, int x, int y, Texture2D text, String type = "Normal")
         {
             this.font = font;
@@ -31,7 +32,7 @@ namespace Game1
             this.type = type;
         }
 
-
+        //Draw with type color, and left being start cost, right being h cost, and bot left being total cost
         public void Draw(SpriteBatch sb)
         {
             
@@ -75,23 +76,25 @@ namespace Game1
                     }
             }
             if(distanceFromStart != 626)
-                sb.DrawString(font, distanceFromStart.ToString(), new Vector2(x * 64 + 5, y * 64 + 5), Color.Blue);
+                sb.DrawString(font, Math.Round(distanceFromStart,2).ToString(), new Vector2(x * 64 + 5, y * 64 + 5), Color.Blue);
             if (HeuristicCost != 626)
-                sb.DrawString(font, HeuristicCost.ToString(), new Vector2(x * 64 + 64 - 32, y * 64 + 5), Color.Purple);
+                sb.DrawString(font, Math.Round(HeuristicCost,2).ToString(), new Vector2(x * 64 + 64 - 32, y * 64 + 5), Color.Purple);
             if (TotalCost != 1252 && TotalCost != 626)
-                sb.DrawString(font, TotalCost.ToString(), new Vector2(x * 64 + 5, y * 64 + 64 - 24), Color.Brown);
+                sb.DrawString(font, Math.Round(TotalCost,2).ToString(), new Vector2(x * 64 + 5, y * 64 + 64 - 24), Color.Brown);
         }
+        //calc start cost
         public float CalcG(String Heuristic, Node prev, bool DiagonalsCostMore)
          {
             if (Heuristic == "Manhattan")
             {
                 if(DiagonalsCostMore)
-                    return (float)Math.Sqrt(((prev.X - x + prev.Y - y)^2) + prev.StartCost);
+                    return (float)(Math.Sqrt(((prev.X - x)*(prev.X - x) + (prev.Y - y)*(prev.Y-y))) + prev.StartCost);
                 else
                     return (float)(prev.StartCost)+1;
             }
             return 1000;
         }
+        //calc h cost
         public float CalcH(String Heuristic, Node goal)
         {
             if (Heuristic == "Manhattan")
@@ -100,7 +103,7 @@ namespace Game1
             }
             return 1000;
         }
-
+        //set type
         public String Type
         {
             get
@@ -112,7 +115,7 @@ namespace Game1
                 type = value;
             }
         }
-
+        //return location
         public Rectangle Rect
         {
             get
@@ -120,7 +123,7 @@ namespace Game1
                 return location;
             }
         }
-
+        //return gcost + hcost
         public double TotalCost
         {
             get
@@ -128,6 +131,7 @@ namespace Game1
                 return HeuristicCost + distanceFromStart;
             }
         }
+        //gcost
         public double StartCost
         {
             get
@@ -139,6 +143,7 @@ namespace Game1
                 distanceFromStart = value;
             }
         }
+        //hcost
         public double HCost
         {
             get
@@ -150,6 +155,7 @@ namespace Game1
                 HeuristicCost = value;
             }
         }
+        //prev node
         public Node Path
         {
             get
@@ -161,11 +167,12 @@ namespace Game1
                 path = value;
             }
         }
-
+        //x
         public int X
         {
             get { return x; }
         }
+        //y
         public int Y
         {
             get { return y; }

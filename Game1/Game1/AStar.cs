@@ -8,6 +8,7 @@ namespace Game1
 {
     class AStar
     {
+        //fields
         bool diagonalsAllowed;
         bool diagonalsCostMore;
         String heuristic;
@@ -15,12 +16,12 @@ namespace Game1
         Graph graph;
         PriorityQueue OpenQueue;
         List<Node> ClosedList;
-        
+        //create a new pathfinding with a graph and heuristic
         public AStar(Graph graph, String Heuristic)
         {
             this.graph = graph;
             diagonalsAllowed = true;
-            diagonalsCostMore = false;
+            diagonalsCostMore = true;
             current = graph.Start;
             current.StartCost = 0;
             current.CalcH(Heuristic,graph.Goal);
@@ -30,7 +31,7 @@ namespace Game1
             heuristic = Heuristic;
 
         }
-
+        //run one iteration return true if no path found or goal found
         public bool OneIteration()
         {
             if(OpenQueue.InList(graph.Goal))
@@ -77,7 +78,7 @@ namespace Game1
             return false;
 
         }
-       
+       //return all nodes on the path
         public List<Node> GetPath()
         {
             List<Node> thePath = new List<Node>();
@@ -93,7 +94,7 @@ namespace Game1
             }
             return null;
         }
-
+        //run all iterations until finished
         public void Run()
         {
             while(!OneIteration())

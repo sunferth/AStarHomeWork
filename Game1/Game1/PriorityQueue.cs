@@ -66,10 +66,7 @@ namespace Game1
             }
             return false;
         }
-        public void Remove(Node node)
-        {
-            
-        }
+
         //return if there is data in the list
         public bool IsEmpty()
         {
